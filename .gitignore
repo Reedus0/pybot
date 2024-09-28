@@ -1,4 +1,4 @@
 .env
 .venv
-logfile.txt
+/logs
 /src/__pycache__

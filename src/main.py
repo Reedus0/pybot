@@ -1,35 +1,29 @@
-from logger import *
-from bot import *
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from dotenv import load_dotenv
 import re
 import os
 
-def start(update, context):
-    user = update.effective_user
-    update.message.reply_text(f'Привет {user.full_name}!')
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from dotenv import load_dotenv
 
-def echo(update, context):
-    update.message.reply_text(update.message.text)
+from logger import *
+from bot import *
+from ssh import *
+from handlers import *
 
 def main():
 
     load_dotenv()
 
-    TOKEN = os.getenv("TOKEN")
-
     init_logging()
+    init_ssh()
 
-    updater = Updater(TOKEN, use_context=True)
+    bot = init_bot()
+    simple_handlers = init_simple_handlers()
+    complex_handlers = init_complex_handlers()
 
-    dp = updater.dispatcher
-		
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-		
-    updater.start_polling()
-    updater.idle()
+    bot_add_simple_handlers(bot, simple_handlers)
+    bot_add_complex_handlers(bot, complex_handlers)
+    bot_listen(bot)
 
     return 0
 
