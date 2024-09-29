@@ -3,21 +3,22 @@ from telegram.ext import Updater, CommandHandler, CommandHandler, MessageHandler
 
 from logger import *
 
+bot = None
+
 def init_bot():
+    global bot
 
     bot_token = os.getenv("TOKEN")
     bot = Updater(bot_token, use_context=True)
 
     log("Initiated bot!")
 
-    return bot
-    
 def send_message(update, message):
     message_length = len(message) 
     for i in range(int(message_length / 4096) + 1):
         update.message.reply_text(message[i * 4096 : (i + 1) * 4096])
 
-def bot_add_simple_handlers(bot, handlers):
+def bot_add_simple_handlers(handlers):
     dp = bot.dispatcher
 
     for handler_name in handlers.keys(): 
@@ -26,7 +27,7 @@ def bot_add_simple_handlers(bot, handlers):
     log("Added simple handlers!")
 
 
-def bot_add_complex_handlers(bot, handlers):
+def bot_add_complex_handlers(handlers):
     dp = bot.dispatcher
 
     for handler in handlers.keys(): 
@@ -43,8 +44,8 @@ def bot_add_complex_handlers(bot, handlers):
 
     log("Added complex handlers!")
 
-def bot_listen(updater):
+def bot_listen():
     log("Bot is listening!")
 
-    updater.start_polling()
-    updater.idle()
+    bot.start_polling()
+    bot.idle()

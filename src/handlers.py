@@ -3,7 +3,10 @@ import re
 from telegram.ext import CommandHandler, MessageHandler, Filters, ConversationHandler
 
 from ssh import *
+from sql import *
 from bot import *
+
+context_data = None
 
 def get_release(update, context):
     result = ssh_do("uname -a")
@@ -68,6 +71,22 @@ def get_services(update, context):
     result = ssh_do("systemctl")
     send_message(update, result)
 
+def get_repl_logs(update, context):
+    result = ssh_do("cat /var/log/postgresql/postgresql-15-main.log | tail -n 20")
+    send_message(update, result)
+
+def get_emails(update, context):
+    result = sql_do("SELECT email FROM email;")
+    result = [x[0] for x in result]
+    result = "\n".join(result)
+    send_message(update, result)
+
+def get_phone_numbers(update, context):
+    result = sql_do("SELECT phone FROM phone;")
+    result = [x[0] for x in result]
+    result = "\n".join(result)
+    send_message(update, result)
+
 def verify_password(update, context):
     send_message(update, "Введите пароль:")
 
@@ -93,6 +112,7 @@ def find_email(update, context):
     return "get_email"
 
 def get_email(update, context):
+    global context_data
     text = update.message.text
 
     result = re.findall(r"[\w]+@[\w]+\.[\w]{2,4}", text)
@@ -102,6 +122,19 @@ def get_email(update, context):
         return ConversationHandler.END
 
     send_message(update, "\n".join(result))
+
+    context_data = result
+
+    send_message(update, "Добавить в базу данных? (Да/Нет)")
+    return "add_email"
+
+def add_email(update, context):
+    text = update.message.text
+    if (text == "Да"):
+        sql_do(f"INSERT INTO email(email) VALUES ('{"'),('".join(context_data)}');");
+        send_message(update, "Данные добавлены")
+    else:
+        send_message(update, "Данные не были добавлены")
     return ConversationHandler.END
 
 def find_phone(update, context):
@@ -110,6 +143,7 @@ def find_phone(update, context):
     return "get_phone"
 
 def get_phone(update, context):
+    global context_data
     text = update.message.text
 
     result = re.findall(r"\+?[78]{1}[\s(-]{1,2}[\d]{3}[\s)-]{1,2}[\d]{3}[\s)-]?[\d]{2}[\s)-]?[\d]{2}", text)
@@ -119,6 +153,19 @@ def get_phone(update, context):
         return ConversationHandler.END
 
     send_message(update, "\n".join(result))
+
+    context_data = result
+
+    send_message(update, "Добавить в базу данных? (Да/Нет)")
+    return "add_phone"
+
+def add_phone(update, context):
+    text = update.message.text
+    if (text == "Да"):
+        sql_do(f"INSERT INTO phone(phone) VALUES ('{"'),('".join(context_data)}');");
+        send_message(update, "Данные добавлены")
+    else:
+        send_message(update, "Данные не были добавлены")
     return ConversationHandler.END
 
 def init_simple_handlers():
@@ -137,6 +184,9 @@ def init_simple_handlers():
     handlers["get_ss"] = get_ss 
     handlers["get_apt_list"] = get_apt_list 
     handlers["get_services"] = get_services 
+    handlers["get_repl_logs"] = get_repl_logs 
+    handlers["get_emails"] = get_emails 
+    handlers["get_phone_numbers"] = get_phone_numbers 
 
     log("Initiated simple handlers!")
 
@@ -147,8 +197,8 @@ def init_complex_handlers():
     handlers = {}
 
     handlers['verify_password'] = [verify_password, {"get_password": get_password}]
-    handlers['find_email'] = [find_email, {"get_email": get_email}]
-    handlers['find_phone'] = [find_phone, {"get_phone": get_phone}]
+    handlers['find_email'] = [find_email, {"get_email": get_email, "add_email": add_email}]
+    handlers['find_phone'] = [find_phone, {"get_phone": get_phone, "add_phone": add_phone}]
 
     log("Initiated complex handlers!")
 

@@ -3,9 +3,13 @@ import paramiko
 
 from logger import *
 
-ssh = paramiko.SSHClient()
+ssh = None
 
 def init_ssh():
+    global ssh
+
+    ssh = paramiko.SSHClient()
+    
     ssh_host = os.getenv("RM_HOST")
     ssh_port = os.getenv("RM_PORT")
     ssh_user = os.getenv("RM_USER")

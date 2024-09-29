@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from logger import *
 from bot import *
 from ssh import *
+from sql import *
 from handlers import *
 
 def main():
@@ -15,14 +16,15 @@ def main():
 
     init_logging()
     init_ssh()
+    init_sql()
 
-    bot = init_bot()
+    init_bot()
     simple_handlers = init_simple_handlers()
     complex_handlers = init_complex_handlers()
 
-    bot_add_simple_handlers(bot, simple_handlers)
-    bot_add_complex_handlers(bot, complex_handlers)
-    bot_listen(bot)
+    bot_add_simple_handlers(simple_handlers)
+    bot_add_complex_handlers(complex_handlers)
+    bot_listen()
 
     return 0
 
