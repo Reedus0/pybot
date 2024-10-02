@@ -77,12 +77,18 @@ def get_repl_logs(update, context):
 
 def get_emails(update, context):
     result = sql_do("SELECT email FROM email;")
+    if (len(result) == 0):
+        send_message(update, "Адреса не найдены")
+        return
     result = [x[0] for x in result]
     result = "\n".join(result)
     send_message(update, result)
 
 def get_phone_numbers(update, context):
     result = sql_do("SELECT phone FROM phone;")
+    if (len(result) == 0):
+        send_message(update, "Телефоны не найдены")
+        return
     result = [x[0] for x in result]
     result = "\n".join(result)
     send_message(update, result)

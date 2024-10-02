@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  bot:
+    build: 
+      context: .
+    environment:
+      DB_USER: db_user
+      DB_PASSWORD: pass
+      DB_HOST: db_host
+      DB_PORT: 5432
+      DB_DATABASE: bot
+      DB_REPL_USER: db_repl
+      DB_REPL_PASSWORD: pass
+      DB_REPL_HOST: db_repl_host
+      DB_REPL_PORT: 5432
+    depends_on:
+      - db_host
+    networks:
+      - default
+
+  db_host:
+    image: postgres
+    environment:
+      POSTGRES_DB: bot
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: pass
+    command: |
+      postgres 
+      -c wal_level=replica 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10 
+      -c hot_standby_feedback=on
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    networks:
+      - default
+
+  db_repl_host:
+    image: postgres
+    environment:
+      PGUSER: db_repl_user
+      PGPASSWORD: pass
+    volumes:
+      - ./db/replication.sh:/docker-entrypoint-initdb.d/replication.sh
+    depends_on:
+      - db_host
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
