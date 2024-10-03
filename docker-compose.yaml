@@ -21,35 +21,34 @@ services:
       - default
 
   db_host:
-    image: postgres:17
+    build: 
+      context: .
+      dockerfile: ./Postgres
     environment:
       POSTGRES_DB: bot
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: pass
-    command: |
-      postgres 
-      -c wal_level=replica 
-      -c hot_standby=on 
-      -c max_wal_senders=10 
-      -c max_replication_slots=10 
-      -c hot_standby_feedback=on
-      -c logging_collector=on
-      -c log_replication_commands=on
-      -c log_filename=postgresql.log
+      POSTGRES_HOST_AUTH_METHOD: "trust\nhost replication db_repl_user 0.0.0.0/0 trust"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
-      - ./logs:/var/lib/postgresql/data/log
+      - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./logs:/var/log/postgresql
     networks:
       - default
 
   db_repl_host:
-    image: postgres:17
+    build: 
+      context: .
+      dockerfile: ./Replication
     environment:
+      POSTGRES_DB: bot
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: pass
       PGUSER: db_repl_user
       PGPASSWORD: pass
     depends_on:
       - db_host
+      - bot
     volumes:
       - ./db/replication.sh:/docker-entrypoint-initdb.d/replication.sh
     networks:

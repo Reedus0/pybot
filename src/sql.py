@@ -13,9 +13,13 @@ def init_sql():
     sql_user = os.getenv("DB_USER")
     sql_password = os.getenv("DB_PASSWORD")
     sql_database = os.getenv("DB_DATABASE")
-
-    sql = psycopg2.connect(dbname=sql_database, user=sql_user, password=sql_password, host=sql_host, port=sql_port)
-
+    while (1):
+        try:
+            sql = psycopg2.connect(dbname=sql_database, user=sql_user, password=sql_password, host=sql_host, port=sql_port)
+            break
+        except:
+            log("Trying to connect to sql server...")
+            
     log("Initiated sql!")
 
 def sql_do(command):
