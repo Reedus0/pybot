@@ -72,8 +72,10 @@ def get_services(update, context):
     send_message(update, result)
 
 def get_repl_logs(update, context):
-    result = ssh_do("cat /var/log/postgresql/postgresql-15-main.log | tail -n 20")
-    send_message(update, result)
+    with open("./logs/postgresql.log", "r") as file:
+        result = file.read()
+        send_message(update, result[-500:])
+        file.close()
 
 def get_emails(update, context):
     result = sql_do("SELECT email FROM email;")
