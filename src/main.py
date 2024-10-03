@@ -14,9 +14,9 @@ def main():
 
     load_dotenv()
 
-    # init_logging()
-    # init_ssh()
-    # init_sql()
+    init_logging()
+    init_ssh()
+    init_sql()
 
     init_bot()
     simple_handlers = init_simple_handlers()
