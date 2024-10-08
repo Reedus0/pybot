@@ -2,7 +2,7 @@ version: '3.8'
 services:
   bot:
     build: 
-      context: .
+      context: ./bot
     environment:
       DB_USER: db_user
       DB_PASSWORD: pass
@@ -22,7 +22,7 @@ services:
 
   db_host:
     build: 
-      context: .
+      context: ./db
       dockerfile: ./Postgres
     environment:
       POSTGRES_DB: bot
@@ -38,7 +38,7 @@ services:
 
   db_repl_host:
     build: 
-      context: .
+      context: ./db_repl
       dockerfile: ./Replication
     environment:
       POSTGRES_DB: bot
@@ -50,7 +50,7 @@ services:
       - db_host
       - bot
     volumes:
-      - ./db/replication.sh:/docker-entrypoint-initdb.d/replication.sh
+      - ./db_repl/replication.sh:/docker-entrypoint-initdb.d/replication.sh
     networks:
       - default
 
