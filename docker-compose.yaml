@@ -4,15 +4,15 @@ services:
     build: 
       context: ./bot
     environment:
-      DB_USER: db_user
-      DB_PASSWORD: pass
-      DB_HOST: db_host
-      DB_PORT: 5432
-      DB_DATABASE: bot
-      DB_REPL_USER: db_repl
-      DB_REPL_PASSWORD: pass
-      DB_REPL_HOST: db_repl_host
-      DB_REPL_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_REPL_USER: ${DB_REPL_USER}
+      DB_REPL_PASSWORD: ${DB_REPL_PASSWORD}
+      DB_REPL_HOST: ${DB_REPL_HOST}
+      DB_REPL_PORT: ${DB_REPL_PORT}
     depends_on:
       - db_host
     volumes:
@@ -23,12 +23,11 @@ services:
   db_host:
     build: 
       context: ./db
-      dockerfile: ./Postgres
     environment:
-      POSTGRES_DB: bot
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_HOST_AUTH_METHOD: "trust\nhost replication db_repl_user 0.0.0.0/0 trust"
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "trust\nhost replication ${DB_REPL_USER} 0.0.0.0/0 trust"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
@@ -39,13 +38,12 @@ services:
   db_repl_host:
     build: 
       context: ./db_repl
-      dockerfile: ./Replication
     environment:
-      POSTGRES_DB: bot
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: pass
-      PGUSER: db_repl_user
-      PGPASSWORD: pass
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGUSER: ${DB_REPL_USER}
+      PGPASSWORD: ${DB_REPL_PASSWORD}
     depends_on:
       - db_host
       - bot
