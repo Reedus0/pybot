@@ -13,6 +13,8 @@ services:
       DB_REPL_PASSWORD: ${DB_REPL_PASSWORD}
       DB_REPL_HOST: ${DB_REPL_HOST}
       DB_REPL_PORT: ${DB_REPL_PORT}
+      LOG_PATH: ${LOG_PATH}
+      LOG_FILE_NAME: ${LOG_FILE_NAME}
     depends_on:
       - db_host
     volumes:
@@ -30,7 +32,6 @@ services:
       POSTGRES_HOST_AUTH_METHOD: "trust\nhost replication ${DB_REPL_USER} 0.0.0.0/0 trust"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
       - ./logs:/var/log/postgresql
     networks:
       - default
