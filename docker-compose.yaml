@@ -4,15 +4,16 @@ services:
     build: 
       context: ./bot
     environment:
+      TOKEN: ${TOKEN}
+      RM_HOST: ${RM_HOST}
+      RM_PORT: ${RM_PORT}
+      RM_USER: ${RM_USER}
+      RM_PASSWORD: ${RM_PASSWORD}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
-      DB_REPL_USER: ${DB_REPL_USER}
-      DB_REPL_PASSWORD: ${DB_REPL_PASSWORD}
-      DB_REPL_HOST: ${DB_REPL_HOST}
-      DB_REPL_PORT: ${DB_REPL_PORT}
       LOG_PATH: ${LOG_PATH}
       LOG_FILE_NAME: ${LOG_FILE_NAME}
     depends_on:
