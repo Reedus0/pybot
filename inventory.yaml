@@ -5,7 +5,7 @@ bot:
       ansible_user: ansible
       ansible_password: ansible
     host_db:
-      ansible_host: 192.168.32.147
+      ansible_host: 192.168.32.146
       ansible_user: ansible
       ansible_password: ansible
     host_replication:

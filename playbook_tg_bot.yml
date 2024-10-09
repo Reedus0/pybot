@@ -1,0 +1,131 @@
+---
+- name: Install db
+  hosts: host_db
+  remote_user: ansible
+
+  tasks:
+    - name: Install packages
+      become: true
+      ansible.builtin.apt:
+        pkg:
+        - postgresql
+        - postgresql-contrib
+        - postgresql-common
+
+    - name: Copy init.sql
+      ansible.builtin.copy:
+        src: ./init.sql
+        dest: /tmp/init.sql
+
+    - name: Copy pg_hba.conf
+      become: true
+      ansible.builtin.copy:
+        src: ./pg_hba.conf
+        dest: /etc/postgresql/15/main/pg_hba.conf
+
+    - name: Copy postgresql.conf
+      become: true
+      ansible.builtin.copy:
+        src: ./postgresql.conf
+        dest: /etc/postgresql/15/main/postgresql.conf
+    
+    - name: Start postgres
+      become: true
+      shell: systemctl start postgresql
+
+    - name: Run init.sql
+      become: true
+      become_user: postgres
+      shell: psql < /tmp/init.sql
+
+    - name: Restart postgres
+      become: true
+      shell: systemctl restart postgresql
+
+- name: Install replication
+  hosts: host_replication
+  remote_user: ansible
+
+  tasks:
+    - name: Install packages
+      become: true 
+      ansible.builtin.apt:
+        pkg:
+        - postgresql
+        - postgresql-contrib
+        - postgresql-common
+
+    - name: Copy replication.sh
+      ansible.builtin.copy:
+        src: ./replication.sh
+        dest: /tmp/replication.sh
+        mode: "0755"
+
+    - name: Copy .env
+      become: true
+      ansible.builtin.copy:
+        src: ./.env
+        dest: /tmp/.env
+        mode: "0766"
+
+    - name: Stop postgres
+      become: true
+      shell: systemctl stop postgresql
+
+    - name: Run replication.sh
+      become: true
+      become_user: postgres
+      shell: cd /tmp; ./replication.sh
+
+    - name: Start postgres
+      become: true
+      shell: systemctl start postgresql
+
+- name: Install bot
+  hosts: host_bot
+  remote_user: ansible
+
+  tasks:
+  - name: Install packeges
+    become: true
+    ansible.builtin.apt:
+      pkg:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - python3-setuptools
+      - python3-dev
+      - libpq-dev
+      - git
+
+  - name: Clone repository
+    become: true
+    ansible.builtin.git:
+      repo: https://github.com/Reedus0/pybot
+      dest: /opt/pybot
+      clone: yes
+
+  - name: Install python dependencies
+    become: true
+    ansible.builtin.pip:
+      requirements: /opt/pybot/requirements.txt
+      virtualenv: /opt/pybot/.venv
+
+  - name: Make logs dir
+    become: true
+    ansible.builtin.file:
+      path: /opt/pybot/logs
+      state: directory
+      mode: "0777"
+
+  - name: Copy .env
+    become: true
+    ansible.builtin.copy:
+      src: ./.env
+      dest: /opt/pybot/.env
+
+  - name: Start bot
+    become: true
+    shell: cd /opt/pybot; ./.venv/bin/python3 /opt/pybot/src/main.py &
+    async: 10
+    poll: 0
