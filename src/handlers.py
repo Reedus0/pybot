@@ -139,7 +139,7 @@ def get_email(update, context):
 def add_email(update, context):
     text = update.message.text
     if (text == "Да"):
-        sql_do(f"INSERT INTO email(email) VALUES ('{"'),('".join(context_data)}');");
+        sql_do(f'INSERT INTO email(email) VALUES (' + "'),('".join(context_data) + ');');
         send_message(update, "Данные добавлены")
     else:
         send_message(update, "Данные не были добавлены")
@@ -170,7 +170,7 @@ def get_phone(update, context):
 def add_phone(update, context):
     text = update.message.text
     if (text == "Да"):
-        sql_do(f"INSERT INTO phone(phone) VALUES ('{"'),('".join(context_data)}');");
+        sql_do(f'INSERT INTO phone(phone) VALUES (' + "'),('".join(context_data) + ');');
         send_message(update, "Данные добавлены")
     else:
         send_message(update, "Данные не были добавлены")

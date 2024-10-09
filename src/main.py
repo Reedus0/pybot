@@ -1,7 +1,3 @@
-import re
-import os
-
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
 from logger import *
