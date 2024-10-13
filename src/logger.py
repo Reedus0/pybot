@@ -6,7 +6,7 @@ def init_logging():
     log_name = "bot.log"
 
     if not os.path.exists(log_path):
-        os.makedirs(log_path, 777)
+        os.makedirs(log_path, 0o777)
 
     logging.basicConfig(
         filename=log_path + log_name, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
