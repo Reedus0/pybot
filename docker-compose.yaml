@@ -19,7 +19,7 @@ services:
     depends_on:
       - db_host
     volumes:
-      - ./logs:/app/logs
+      - /tmp:/app/logs
     networks:
       - default
 
@@ -33,7 +33,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: "trust\nhost replication ${DB_REPL_USER} 0.0.0.0/0 trust"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./logs:/var/log/postgresql
+      - /tmp:/var/log/postgresql
     networks:
       - default
 
