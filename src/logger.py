@@ -2,7 +2,7 @@ import logging
 import os
 
 def init_logging():
-    log_path = "/logs/"
+    log_path = "logs/"
     log_name = "bot.log"
 
     if not os.path.exists(log_path):
